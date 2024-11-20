@@ -1,54 +1,77 @@
 ﻿#include <iostream>
-#include <cmath>
+#include <fstream>
 
 using namespace std;
 
-const int MAX_N = 10;
+const int MAX_VERTICES = 100;
 
-int position[MAX_N];
+int graph[MAX_VERTICES][MAX_VERTICES];
+int n, m;
 
-bool isSafe(int row, int col, int n) {
-    for (int i = 0; i < row; i++) {
-        if (position[i] == col || abs(position[i] - col) == abs(i - row)) {
-            return false;
+bool isAsymmetric() {
+    for (int u = 0; u < n; u++) {
+        for (int v = 0; v < n; v++) {
+            if (graph[u][v] == 1 && graph[v][u] == 1) {
+                return false;
+            }
         }
     }
     return true;
 }
 
-void printSolution(int n) {
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            if (position[i] == j)
-                cout << "Q ";
-            else
-                cout << ". ";
-        }
-        cout << endl;
-    }
-    cout << endl;
-}
-
-void solveNQueens(int row, int n) {
-    if (row == n) {
-        printSolution(n);
-        return;
-    }
-
-    for (int col = 0; col < n; col++) {
-        if (isSafe(row, col, n)) {
-            position[row] = col;
-            solveNQueens(row + 1, n);
+bool isTransitive() {
+    for (int u = 0; u < n; u++) {
+        for (int v = 0; v < n; v++) {
+            if (graph[u][v] == 1) {
+                for (int w = 0; w < n; w++) {
+                    if (graph[v][w] == 1 && graph[u][w] == 0) {
+                        return false;
+                    }
+                }
+            }
         }
     }
+    return true;
 }
 
 int main() {
-    int n;
-    cout << "Enter the value of n: ";
-    cin >> n;
+    ifstream inputFile("in.txt");
 
-    solveNQueens(0, n);
+    if (!inputFile) {
+        cerr << "Error opening input file!" << endl;
+        return 1;
+    }
+
+    inputFile >> n >> m;
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            graph[i][j] = 0;
+        }
+    }
+
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        inputFile >> u >> v;
+        u--; v--;
+        graph[u][v] = 1;
+    }
+
+    inputFile.close();
+
+    if (isAsymmetric()) {
+        cout << "The relation is asymmetric." << endl;
+    }
+    else {
+        cout << "The relation is not asymmetric." << endl;
+    }
+
+    if (isTransitive()) {
+        cout << "The relation is transitive." << endl;
+    }
+    else {
+        cout << "The relation is not transitive." << endl;
+    }
 
     return 0;
 }
